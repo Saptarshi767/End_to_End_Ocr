@@ -1,0 +1,341 @@
+{
+  "version": "v20250913_234430_640586_a920823e",
+  "created_at": "2025-09-13T23:44:30.640586",
+  "description": "Initial employee schema",
+  "hash": "a920823e68d0f3ba1a7bc77bc79c9b5aa81ec1886dec024818c73a53877c6bf2",
+  "parent_version": null,
+  "schema": {
+    "columns": [
+      {
+        "name": "employee_id",
+        "data_type": "text",
+        "nullable": false,
+        "unique_values": 5,
+        "sample_values": [
+          "EMP001",
+          "EMP002",
+          "EMP003",
+          "EMP004",
+          "EMP005"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 5,
+          "null_percentage": 0.0,
+          "unique_percentage": 100.0,
+          "is_primary_key_candidate": true,
+          "is_categorical": false,
+          "memory_usage": 407,
+          "min_length": 6,
+          "max_length": 6,
+          "avg_length": 6.0,
+          "contains_special_chars": false,
+          "is_uppercase": true,
+          "is_lowercase": false,
+          "common_patterns": []
+        }
+      },
+      {
+        "name": "name",
+        "data_type": "text",
+        "nullable": false,
+        "unique_values": 5,
+        "sample_values": [
+          "Alice Johnson",
+          "Bob Smith",
+          "Charlie Brown",
+          "Diana Prince",
+          "Eve Wilson"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 5,
+          "null_percentage": 0.0,
+          "unique_percentage": 100.0,
+          "is_primary_key_candidate": true,
+          "is_categorical": false,
+          "memory_usage": 434,
+          "min_length": 9,
+          "max_length": 13,
+          "avg_length": 11.4,
+          "contains_special_chars": false,
+          "is_uppercase": false,
+          "is_lowercase": false,
+          "common_patterns": [
+            "Full name pattern"
+          ]
+        }
+      },
+      {
+        "name": "age",
+        "data_type": "number",
+        "nullable": false,
+        "unique_values": 5,
+        "sample_values": [
+          "25",
+          "30",
+          "35",
+          "28",
+          "32"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 5,
+          "null_percentage": 0.0,
+          "unique_percentage": 100.0,
+          "is_primary_key_candidate": true,
+          "is_categorical": false,
+          "memory_usage": 172,
+          "min_value": 25.0,
+          "max_value": 35.0,
+          "mean_value": 30.0,
+          "median_value": 30.0,
+          "std_deviation": 3.8078865529319543,
+          "has_decimals": false,
+          "is_integer": true
+        }
+      },
+      {
+        "name": "salary",
+        "data_type": "currency",
+        "nullable": false,
+        "unique_values": 5,
+        "sample_values": [
+          "$50000",
+          "$60000",
+          "$55000",
+          "$70000",
+          "$65000"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 5,
+          "null_percentage": 0.0,
+          "unique_percentage": 100.0,
+          "is_primary_key_candidate": true,
+          "is_categorical": false,
+          "memory_usage": 407
+        }
+      },
+      {
+        "name": "is_active",
+        "data_type": "boolean",
+        "nullable": false,
+        "unique_values": 2,
+        "sample_values": [
+          "True",
+          "False",
+          "True",
+          "True",
+          "False"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 2,
+          "null_percentage": 0.0,
+          "unique_percentage": 40.0,
+          "is_primary_key_candidate": false,
+          "is_categorical": true,
+          "memory_usage": 137
+        }
+      },
+      {
+        "name": "join_date",
+        "data_type": "date",
+        "nullable": false,
+        "unique_values": 5,
+        "sample_values": [
+          "2020-01-15",
+          "2019-06-20",
+          "2021-03-10",
+          "2020-11-05",
+          "2021-07-22"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 5,
+          "null_percentage": 0.0,
+          "unique_percentage": 100.0,
+          "is_primary_key_candidate": true,
+          "is_categorical": false,
+          "memory_usage": 427,
+          "detected_format": "%Y-%m-%d",
+          "min_date": "2019-06-20T00:00:00",
+          "max_date": "2021-07-22T00:00:00",
+          "date_range_days": 763,
+          "has_time_component": false
+        }
+      },
+      {
+        "name": "completion_rate",
+        "data_type": "percentage",
+        "nullable": false,
+        "unique_values": 5,
+        "sample_values": [
+          "85%",
+          "92%",
+          "78%",
+          "95%",
+          "88%"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 5,
+          "null_percentage": 0.0,
+          "unique_percentage": 100.0,
+          "is_primary_key_candidate": true,
+          "is_categorical": false,
+          "memory_usage": 392
+        }
+      },
+      {
+        "name": "department",
+        "data_type": "text",
+        "nullable": false,
+        "unique_values": 5,
+        "sample_values": [
+          "Engineering",
+          "Data Science",
+          "Product",
+          "Design",
+          "Analytics"
+        ],
+        "metadata": {
+          "total_count": 5,
+          "null_count": 0.0,
+          "non_null_count": 5.0,
+          "unique_values": 5,
+          "null_percentage": 0.0,
+          "unique_percentage": 100.0,
+          "is_primary_key_candidate": true,
+          "is_categorical": false,
+          "memory_usage": 422,
+          "min_length": 6,
+          "max_length": 12,
+          "avg_length": 9.0,
+          "contains_special_chars": false,
+          "is_uppercase": false,
+          "is_lowercase": false,
+          "common_patterns": []
+        }
+      }
+    ],
+    "row_count": 5,
+    "data_types": {
+      "employee_id": "text",
+      "name": "text",
+      "age": "number",
+      "salary": "currency",
+      "is_active": "boolean",
+      "join_date": "date",
+      "completion_rate": "percentage",
+      "department": "text"
+    },
+    "sample_data": {
+      "employee_id": [
+        "EMP001",
+        "EMP002",
+        "EMP003",
+        "EMP004",
+        "EMP005"
+      ],
+      "name": [
+        "Alice Johnson",
+        "Bob Smith",
+        "Charlie Brown",
+        "Diana Prince",
+        "Eve Wilson"
+      ],
+      "age": [
+        "25",
+        "30",
+        "35",
+        "28",
+        "32"
+      ],
+      "salary": [
+        "$50000",
+        "$60000",
+        "$55000",
+        "$70000",
+        "$65000"
+      ],
+      "is_active": [
+        "True",
+        "False",
+        "True",
+        "True",
+        "False"
+      ],
+      "join_date": [
+        "2020-01-15",
+        "2019-06-20",
+        "2021-03-10",
+        "2020-11-05",
+        "2021-07-22"
+      ],
+      "completion_rate": [
+        "85%",
+        "92%",
+        "78%",
+        "95%",
+        "88%"
+      ],
+      "department": [
+        "Engineering",
+        "Data Science",
+        "Product",
+        "Design",
+        "Analytics"
+      ]
+    },
+    "created_at": "2025-09-13T23:44:30.635498",
+    "metadata": {
+      "table_name": "employees",
+      "inference_config": {
+        "sample_size": 1000,
+        "confidence_threshold": 0.8,
+        "null_threshold": 0.95,
+        "unique_threshold": 0.95,
+        "categorical_threshold": 20,
+        "date_formats": [
+          "%Y-%m-%d",
+          "%m/%d/%Y",
+          "%d/%m/%Y",
+          "%Y/%m/%d",
+          "%d-%m-%Y",
+          "%m-%d-%Y",
+          "%B %d, %Y",
+          "%d %B %Y",
+          "%Y-%m-%d %H:%M:%S",
+          "%m/%d/%Y %H:%M:%S"
+        ],
+        "currency_symbols": [
+          "$",
+          "\u20ac",
+          "\u00a3",
+          "\u00a5",
+          "\u20b9"
+        ]
+      },
+      "column_count": 8,
+      "total_cells": 40,
+      "memory_usage": 1874.0
+    }
+  },
+  "changes": []
+}
