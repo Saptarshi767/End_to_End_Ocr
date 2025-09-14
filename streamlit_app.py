@@ -22,19 +22,7 @@ import tempfile
 import os
 import sys
 
-# Add src to path for imports
-sys.path.append(str(Path(__file__).parent / "src"))
-
-try:
-    from ocr.engine_factory import OCREngineFactory
-    from data_processing.table_structure_extractor import TableStructureExtractor
-    from core.models import OCRResult, ProcessingOptions
-    OCR_AVAILABLE = True
-except ImportError as e:
-    OCR_AVAILABLE = False
-    st.error(f"OCR modules not available: {e}")
-
-# Try to import OCR libraries directly
+# Try to import OCR libraries directly (no complex modules needed)
 try:
     import easyocr
     import pytesseract
@@ -428,24 +416,35 @@ def render_upload_page():
     
     # Check OCR availability
     if not DIRECT_OCR_AVAILABLE:
-        st.error("⚠️ OCR libraries not installed. Please install: `pip install easyocr pytesseract`")
-        st.info("For now, you can still test the interface with sample data.")
-    else:
-        # Check Tesseract installation
-        try:
-            import subprocess
-            result = subprocess.run(['tesseract', '--version'], capture_output=True, text=True)
-            if result.returncode != 0:
-                st.warning("⚠️ Tesseract not found. EasyOCR will be used for all processing.")
-                st.info("To install Tesseract: https://github.com/UB-Mannheim/tesseract/wiki")
-        except (subprocess.SubprocessError, FileNotFoundError):
-            st.warning("⚠️ Tesseract not installed. EasyOCR will be used for all processing.")
-            st.info("📋 To install Tesseract:")
+        st.error("⚠️ OCR libraries not installed")
+        st.markdown("""
+        **To install OCR libraries:**
+        ```bash
+        pip install easyocr pytesseract
+        ```
+        """)
+        st.info("💡 You can still explore the interface, but OCR processing won't work until libraries are installed.")
+        return
+    
+    # Check Tesseract installation
+    tesseract_available = False
+    try:
+        import subprocess
+        result = subprocess.run(['tesseract', '--version'], capture_output=True, text=True)
+        tesseract_available = (result.returncode == 0)
+    except (subprocess.SubprocessError, FileNotFoundError):
+        tesseract_available = False
+    
+    if not tesseract_available:
+        st.info("ℹ️ Tesseract not found - using EasyOCR only (this is fine for most use cases)")
+        with st.expander("📋 Optional: Install Tesseract for additional OCR options"):
             st.markdown("""
             - **Windows**: Download from https://github.com/UB-Mannheim/tesseract/wiki
             - **macOS**: `brew install tesseract`
             - **Linux**: `sudo apt-get install tesseract-ocr`
             """)
+    else:
+        st.success("✅ Both EasyOCR and Tesseract are available")
     
     col1, col2 = st.columns([2, 1])
     
@@ -464,14 +463,32 @@ def render_upload_page():
             # Processing options
             with col2:
                 st.subheader("Processing Options")
-                ocr_engine = st.selectbox("OCR Engine", ["auto", "easyocr", "tesseract"])
+                
+                # Check what engines are available
+                available_engines = ["easyocr"]  # EasyOCR is always available if DIRECT_OCR_AVAILABLE
+                try:
+                    import subprocess
+                    result = subprocess.run(['tesseract', '--version'], capture_output=True, text=True)
+                    if result.returncode == 0:
+                        available_engines.extend(["tesseract", "auto"])
+                except:
+                    pass
+                
+                if "auto" in available_engines:
+                    engine_options = ["auto", "easyocr", "tesseract"]
+                    default_engine = "auto"
+                else:
+                    engine_options = ["easyocr"]
+                    default_engine = "easyocr"
+                
+                ocr_engine = st.selectbox("OCR Engine", engine_options, index=0)
                 preprocessing = st.checkbox("Image Preprocessing", value=True)
                 confidence = st.slider("Confidence Threshold", 0.1, 1.0, 0.5)
                 
-                if DIRECT_OCR_AVAILABLE:
-                    st.success("✅ OCR engines available")
+                if len(available_engines) == 1:
+                    st.info("ℹ️ Using EasyOCR (Tesseract not installed)")
                 else:
-                    st.warning("⚠️ OCR engines not available")
+                    st.success("✅ Multiple OCR engines available")
             
             # Process each file
             for i, file in enumerate(uploaded_files):
@@ -544,7 +561,14 @@ def render_upload_page():
                                         st.error("❌ No table data could be extracted from this image")
                                         st.info("💡 Try adjusting the confidence threshold or preprocessing options")
                             else:
-                                st.error("OCR libraries not available. Please install easyocr and pytesseract.")
+                                st.error("❌ OCR libraries not available")
+                                st.markdown("""
+                                **To enable OCR processing:**
+                                ```bash
+                                pip install easyocr pytesseract
+                                ```
+                                Then restart the application.
+                                """)
     
     with col2:
         if not uploaded_files:
@@ -560,6 +584,41 @@ def render_upload_page():
             - Tables should be clearly visible
             - Avoid skewed or rotated images
             """)
+            
+            # Demo mode when OCR is not available
+            if not DIRECT_OCR_AVAILABLE:
+                st.markdown("---")
+                st.subheader("🎮 Demo Mode")
+                st.info("Since OCR libraries aren't installed, you can try the demo with sample data")
+                
+                if st.button("📊 Load Sample Table Data"):
+                    # Create sample data
+                    sample_df = pd.DataFrame({
+                        'Product': ['Laptop', 'Mouse', 'Keyboard', 'Monitor', 'Headphones'],
+                        'Price': ['$999', '$25', '$75', '$299', '$150'],
+                        'Stock': ['15', '50', '30', '8', '25'],
+                        'Category': ['Electronics', 'Accessories', 'Accessories', 'Electronics', 'Audio']
+                    })
+                    
+                    # Store as processed document
+                    st.session_state.processed_documents['sample_data.png'] = {
+                        'dataframe': sample_df,
+                        'metadata': {
+                            'confidence_avg': 0.95,
+                            'table_regions': [(50, 50, 400, 200)],
+                            'extracted_data': [
+                                {'text': 'Product', 'confidence': 0.98},
+                                {'text': 'Price', 'confidence': 0.96},
+                                {'text': 'Stock', 'confidence': 0.94}
+                            ]
+                        },
+                        'processed_at': datetime.now()
+                    }
+                    st.session_state.extracted_tables['sample_data.png'] = sample_df
+                    st.session_state.selected_document = 'sample_data.png'
+                    
+                    st.success("✅ Sample data loaded! Check other pages to explore features.")
+                    st.dataframe(sample_df, width='stretch')
     
     # Show processed documents summary
     if st.session_state.processed_documents:
