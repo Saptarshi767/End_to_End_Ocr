@@ -331,7 +331,12 @@ def render_header():
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col1:
-        st.image("https://via.placeholder.com/100x50/0066CC/FFFFFF?text=OCR", width=100)
+        # Use the OCR logo
+        try:
+            st.image("logo.svg", width=120)
+        except:
+            # Fallback to emoji if image not found
+            st.markdown("# 📊")
     
     with col2:
         st.title("📊 OCR Table Analytics")
