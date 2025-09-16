@@ -320,7 +320,7 @@ def render_add_operations(df, doc_name):
 
 
 def render_bulk_operations(df, doc_name):
-    """Render bulk editing operations"""
+    """Render bulk editing operations (with Rename Column and Replace Top Row options)"""
     st.markdown("**Bulk operations for multiple cells:**")
     
     if df.empty:
@@ -339,11 +339,12 @@ def render_bulk_operations(df, doc_name):
             cols_to_process = selected_columns if selected_columns else df.columns
             count = 0
             for col in cols_to_process:
-                if df[col].dtype == 'object':
-                    mask = df[col].astype(str).str.contains(find_text, na=False)
-                    df.loc[mask, col] = df.loc[mask, col].astype(str).str.replace(find_text, replace_text)
-                    count += mask.sum()
-            
+                # operate on any dtype but convert to str for contains/replace
+                mask = df[col].astype(str).str.contains(find_text, na=False)
+                if mask.any():
+                    # replace only on masked rows
+                    df.loc[mask, col] = df.loc[mask, col].astype(str).str.replace(find_text, replace_text, regex=False)
+                    count += int(mask.sum())
             st.success(f"✅ Replaced {count} occurrences")
             st.rerun()
     
@@ -357,7 +358,7 @@ def render_bulk_operations(df, doc_name):
             "Convert to lowercase",
             "Remove special characters",
             "Convert to numbers"
-        ])
+        ], key=f"bulk_op_{doc_name}")
         
         if st.button("🔧 Apply Operation", key=f"apply_op_{doc_name}"):
             if operation == "Trim whitespace":
@@ -371,13 +372,87 @@ def render_bulk_operations(df, doc_name):
             elif operation == "Convert to numbers":
                 try:
                     df[target_column] = pd.to_numeric(df[target_column].astype(str).str.replace(r'[^\d.-]', '', regex=True), errors='coerce')
-                except:
+                except Exception:
                     st.error("Could not convert to numbers")
             
             st.success(f"✅ Applied '{operation}' to column '{target_column}'")
             st.rerun()
     
+    # ----------------------------
+    # Rename column section (new)
+    # ----------------------------
+    st.markdown("---")
+    st.subheader("🔁 Rename Column")
+    rename_col1, rename_col2, rename_col3 = st.columns([2, 2, 1])
+    
+    with rename_col1:
+        col_to_rename = st.selectbox("Select column to rename", df.columns, key=f"rename_select_{doc_name}")
+    with rename_col2:
+        new_col_name = st.text_input("New column name", key=f"rename_input_{doc_name}")
+    with rename_col3:
+        if st.button("✏️ Rename", key=f"rename_btn_{doc_name}"):
+            # Validation checks
+            if not new_col_name or new_col_name.strip() == "":
+                st.error("Column name cannot be empty")
+            elif new_col_name in df.columns:
+                st.error(f"A column named '{new_col_name}' already exists")
+            else:
+                df = df.rename(columns={col_to_rename: new_col_name})
+                st.success(f"✅ Renamed column '{col_to_rename}' → '{new_col_name}'")
+                st.rerun()
+    
+    # ----------------------------
+    # Replace top row with column names (new)
+    # ----------------------------
+    st.markdown("---")
+    st.subheader("🔃 Replace Top Row with Column Names")
+    rc1, rc2, rc3 = st.columns([2, 2, 1])
+    
+    with rc1:
+        row_index_for_header = st.number_input(
+            "Row index to use as header (0-based)",
+            min_value=0,
+            max_value=max(0, len(df)-1),
+            value=0,
+            step=1,
+            key=f"header_row_idx_{doc_name}"
+        )
+    with rc2:
+        trim_headers = st.checkbox("Trim whitespace from header values", value=True, key=f"trim_headers_{doc_name}")
+    with rc3:
+        if st.button("🔁 Replace headers", key=f"replace_headers_{doc_name}"):
+            # Safety checks
+            if len(df) == 0:
+                st.error("Cannot replace headers on an empty table")
+            elif row_index_for_header < 0 or row_index_for_header >= len(df):
+                st.error("Selected row index is out of range")
+            else:
+                # read the chosen row as strings
+                new_headers = df.iloc[row_index_for_header].astype(str).tolist()
+                if trim_headers:
+                    new_headers = [h.strip() for h in new_headers]
+                # ensure uniqueness by appending index to duplicates
+                seen = {}
+                final_headers = []
+                for i, h in enumerate(new_headers):
+                    if h == "" or h.lower() == "nan":
+                        h = f"col_{i+1}"
+                    base = h
+                    if h in seen:
+                        seen[h] += 1
+                        h = f"{base}_{seen[base]}"
+                    else:
+                        seen[h] = 0
+                    final_headers.append(h)
+                # apply and drop the header row (optional: keep it)
+                df.columns = final_headers
+                # drop the row used as header to avoid duplicate header row in data
+                df = df.drop(df.index[row_index_for_header]).reset_index(drop=True)
+                st.success("✅ Replaced table headers from selected row and removed that row from data")
+                st.rerun()
+    
     return df
+
 
 
 def auto_clean_data(df):
